@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>ChatBot Gamer</title>
+<style>
+body { font-family: Arial; background: #1e1e1e; color: #fff; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;}
+#chat { width:400px; max-width:90%; background:#2c2c2c; padding:10px; border-radius:10px; display:flex; flex-direction:column; }
+#mensajes { flex-grow:1; overflow-y:auto; margin-bottom:10px; }
+.mensaje { margin:5px 0; padding:8px 12px; border-radius:15px; max-width:80%; }
+.usuario { background:#4caf50; align-self:flex-end; }
+.bot { background:#555; align-self:flex-start; }
+#input { display:flex; }
+#mensaje { flex-grow:1; padding:8px; border-radius:10px; border:none; }
+#enviar { padding:8px 12px; margin-left:5px; border:none; border-radius:10px; background:#2196f3; color:white; cursor:pointer; }
+</style>
+</head>
+<body>
+<div id="chat">
+    <div id="mensajes"></div>
+    <div id="input">
+        <input type="text" id="mensaje" placeholder="Escribe algo...">
+        <button id="enviar">Enviar</button>
+    </div>
+</div>
+<script>
+const mensajesDiv = document.getElementById('mensajes');
+const input = document.getElementById('mensaje');
+const btn = document.getElementById('enviar');
+
+function agregarMensaje(texto, clase) {
+    const div = document.createElement('div');
+    div.className = 'mensaje ' + clase;
+    div.textContent = texto;
+    mensajesDiv.appendChild(div);
+    mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+}
+
+btn.addEventListener('click', async () => {
+    const msg = input.value.trim();
+    if(!msg) return;
+    agregarMensaje(msg,'usuario');
+    input.value='';
+
+    const response = await fetch('/mensaje',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({mensaje: msg})
+    });
+    const data = await response.json();
+    agregarMensaje(data.respuesta,'bot');
+});
+
+input.addEventListener('keypress', e=>{
+    if(e.key==='Enter') btn.click();
+});
+</script>
+</body>
+</html>
